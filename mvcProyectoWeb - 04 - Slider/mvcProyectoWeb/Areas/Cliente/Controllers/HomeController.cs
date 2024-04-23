@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using mvcProyectoWeb.AccesoDatos.Data.Repository;
+using mvcProyectoWeb.AccesoDatos.Data.Repository.IRepository;
 using mvcProyectoWeb.Models;
+using mvcProyectoWeb.Models.ViewModels;
 using System.Diagnostics;
 
 namespace mvcProyectoWeb.Areas.Cliente.Controllers
@@ -7,16 +10,26 @@ namespace mvcProyectoWeb.Areas.Cliente.Controllers
     [Area("Cliente")]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        private readonly IContenedorTrabajo _contenedorTrabajo;
+        public HomeController(IContenedorTrabajo contenedorTrabajo)
         {
-            _logger = logger;
+            _contenedorTrabajo = contenedorTrabajo;
         }
 
+        //Primera versión página de inicio sin paginación
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            HomeVM homeVM = new HomeVM()
+            {
+                Sliders = _contenedorTrabajo.Slider.GetAll(),                
+            };
+
+            //Esta línea es para poder saber si estamos en el home o no
+            ViewBag.IsHome = true;
+
+            return View(homeVM);
         }
 
         public IActionResult Privacy()
