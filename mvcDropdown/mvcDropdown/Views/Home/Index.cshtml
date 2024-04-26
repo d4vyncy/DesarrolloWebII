@@ -1,0 +1,115 @@
+﻿@model DropDownsVM
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Dropdown ejemplo</h1>    
+</div>
+
+<form>
+    <div class="row">
+        <div class="col-4">
+            <label for="sucursalDropdown">Sucursal:</label>
+            <select id="sucursalDropdown" class="form-control">
+                <option value="">Seleccione una sucursal</option>
+                @foreach (var sucursal in Model.Sucursales)
+                {
+                    <option value="@sucursal.Id">@sucursal.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-4">
+            <label for="categoriaDropdown">Categoría:</label>
+            <select id="categoriaDropdown" class="form-control" disabled>
+                <option value="">Seleccione una categoría</option>
+            </select>
+        </div>
+
+        <div class="col-4">
+            <label for="productoDropdown">Producto:</label>
+            <select id="productoDropdown" class="form-control" disabled>
+                <option value="">Seleccione un producto</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Otros campos -->
+        <div class="form-group">
+            <label for="precio">Precio:</label>
+            <input class="form-control" id="precio" for="Producto.Precio">
+        </div>
+        <br />
+        <div class="form-group">
+            <label asp-for="Producto.Descripcion">Descripción:</label>
+            <textarea class="form-control" id="descripcion" asp-for="Producto.Descripcion" required></textarea>
+            <br />
+        </div>
+
+        <!-- Botón de envío -->
+        <button type="submit" class="btn btn-primary">Registrar Producto</button>
+    </div>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Manejar el cambio en el dropdown de Sucursal
+        $("#sucursalDropdown").change(function () {
+            var sucursalId = $(this).val();
+            // console.log("idsucursal: " + sucursalId);
+
+            // Limpiar y deshabilitar los dropdowns dependientes
+            $("#categoriaDropdown").empty().append("<option value=''>Seleccione una categoría</option>").prop("disabled", true);
+            $("#productoDropdown").empty().append("<option value=''>Seleccione un producto</option>").prop("disabled", true);
+
+            if (sucursalId) {
+                // Hacer una solicitud AJAX para obtener las categorías asociadas a la sucursal seleccionada
+                $.ajax({
+                    url: "/Home/ObtenerCategorias",
+                    type: "GET",
+                    data: { sucursalId: sucursalId },
+                    success: function (categorias) {
+                        // Llenar el dropdown de Categoría con las opciones obtenidas
+                        $.each(categorias, function (index, categoria) {
+                            $("#categoriaDropdown").append("<option value='" + categoria.id + "'>" + categoria.nombre + "</option>");
+                        });
+
+                        // Habilitar el dropdown de Categoría
+                        $("#categoriaDropdown").prop("disabled", false);
+                    }
+                });
+            }
+
+        });
+
+        // Manejar el cambio en el dropdown de Categoría
+        $("#categoriaDropdown").change(function () {
+            var categoriaId = $(this).val();
+
+            // Limpiar y deshabilitar el dropdown de Producto
+            $("#productoDropdown").empty().append("<option value=''>Seleccione un producto</option>").prop("disabled", true);
+
+            if (categoriaId) {
+                // Hacer una solicitud AJAX para obtener las categorías asociadas a la sucursal seleccionada
+                $.ajax({
+                    url: "/Home/ObtenerProductos",
+                    type: "GET",
+                    data: { categoriaId: categoriaId },
+                    success: function (productos) {
+                        // Llenar el dropdown de Producto con las opciones obtenidas
+                        $.each(productos, function (index, producto) {
+                            $("#productoDropdown").append("<option value='" + producto.id + "'>" + producto.nombre + "</option>");
+                        });
+
+                        // Habilitar el dropdown de Producto
+                        $("#productoDropdown").prop("disabled", false);
+                    }
+                });
+            }
+
+        });
+    });
+</script>
